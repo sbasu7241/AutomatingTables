@@ -1,105 +1,75 @@
-import pandas as pd
 from docx.api import Document
 import mysql.connector
 
 
 document = Document('table.docx')
-table = document.tables[0]
 
-data = []
+table_names = ["Depositor_Table","Item_Table","Customer_Table","Salesman_Table","Sales_Order_Table","Branch_Table","Customer_new_Table","Loan_Table","Borrower_Table","Account_Table","Depositor_new_Table"]
+	
+for i in range(len(document.tables)):
 
-keys = None
+	table = document.tables[i]
+	data = []
+	keys = None
+	for j, row in enumerate(table.rows):
+	    text = (cell.text.encode('utf-8') for cell in row.cells)
+	    if j == 0:
+		keys = tuple(text)
+		continue
+	    row_data = tuple(text)
+	    data.append(row_data)
+	    
+	mydb = mysql.connector.connect(
+	  host="localhost",
+	  user="francesco",
+	  passwd="some_pass",
+	  database="test"
+	)
+	cursor = mydb.cursor()
+	sql_item ="CREATE TABLE " + table_names[i] +  " ("
+	
+	for j in range(len(keys)):
+		header = keys[j]
+		repeat = str(header).strip().replace(" ","").replace("\n","") + " CHAR(20) NOT NULL,"
+		if j == (len(keys)-1):
+			repeat = str(header) + " CHAR(20) NOT NULL)"
+		sql_item += repeat
 
-for i, row in enumerate(table.rows):
-    text = (cell.text.encode('utf-8') for cell in row.cells)
+	#print(sql_item)	
+	cursor.execute(sql_item)
+	insert_sql_header = "INSERT INTO " + table_names[i] + " ("
+	sql_item = ""
+	for j in range(len(keys)):
+		header = keys[j]
+		repeat = str(header).strip().replace(" ","").replace("\n","") + ","
+		if j == (len(keys)-1):
+			repeat = str(header)
+		sql_item += repeat
 
-    if i == 0:
-        keys = tuple(text)
-        continue
-    row_data = tuple(text)
-    data.append(row_data)
-    
-print (data)
+	sql_header = ") VALUES ("
+	sql_repeat = ""
 
-print keys
+	if len(keys)==1:
+		sql_repeat = "%s)"
 
+	else:
+		for j in range(len(keys)-1):
+			sql_repeat+="%s, "
+		 
+	 	sql_repeat += "%s)"
 
-mydb = mysql.connector.connect(
-  host="localhost",
-  user="francesco",
-  passwd="some_pass",
-  database="test"
-)
+	insert_sql = insert_sql_header + sql_item + sql_header + sql_repeat 
+	#print insert_sql
+	for j in range(len(keys)):
+		val = data[j]
+		cursor.execute(insert_sql, val)
 
-cursor = mydb.cursor()
+			
+	mydb.commit()
 
-#sql_item ="CREATE TABLE Item_Table (item_id CHAR(20) NOT NULL,item_name CHAR(20) NOT NULL,Manu_name CHAR(20) NOT NULL,item_rate CHAR(20) NOT NULL,Sell_price CHAR(20) NOT NULL,item_description CHAR(20) NOT NULL)"
+	print "Table " + str(i) + " complete..." 
 
-
-sql = "DROP TABLE IF EXISTS Item_Table"
-
-cursor.execute(sql) 
-
-
-sql_item ="CREATE TABLE Item_Table ("
-
-
-
-for i in range(len(keys)):
-	header = keys[i]
-	repeat = str(header) + " CHAR(20) NOT NULL,"
-	if i == (len(keys)-1):
-		repeat = repeat = str(header) + " CHAR(20) NOT NULL)"
-	sql_item += repeat
-
-#print sql_item	
-
-cursor.execute(sql_item)
-
-#insert_sql = "INSERT INTO Depositor_Table (Customer_Name, Account_Number) VALUES (%s, %s)"
-
-#insert_sql = "INSERT INTO Item_Table (item_id,item_name,Manu_name,item_rate,Sell_price,item_description) VALUES (%s, %s, %s, %s, %s, %s)"
-
-insert_sql_header = "INSERT INTO Item_Table ("
-
-sql_item = ""
-
-for i in range(len(keys)):
-	header = keys[i]
-	repeat = str(header) + ","
-	if i == (len(keys)-1):
-		repeat = repeat = str(header)
-	sql_item += repeat
-
-sql_header = ") VALUES ("
-sql_repeat = ""
-
-if len(keys)==1:
-	sql_repeat = "%s)"
-
-else:
-	for i in range(len(keys)-1):
-		sql_repeat+="%s, "
-	 
- 	sql_repeat += "%s)"
-
-insert_sql = insert_sql_header + sql_item + sql_header + sql_repeat 
-
-print insert_sql
-
-
-
-for i in range(len(keys)):
-	val = data[i]
-	cursor.execute(insert_sql, val)
-
-#Deleting table for testing purporses
-
-#cursor.execute("DROP TABLE Item_Table;")
-		
-mydb.commit()
-
-print(cursor.rowcount, "record inserted.")
+	
 
 
 
