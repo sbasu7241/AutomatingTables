@@ -4,25 +4,24 @@ import mysql.connector
 
 
 document = Document('table.docx')
-table = document.tables[0]
+table = document.tables[1]
 
 data = []
 
 keys = None
+
 for i, row in enumerate(table.rows):
     text = (cell.text.encode('utf-8') for cell in row.cells)
 
     if i == 0:
         keys = tuple(text)
         continue
-    row_data = dict(zip(keys, text))
+    row_data = tuple(text)
     data.append(row_data)
     
 print (data)
 
-df = pd.DataFrame(data)
-
-#print(df.columns.values)
+print keys
 
 
 mydb = mysql.connector.connect(
@@ -34,19 +33,61 @@ mydb = mysql.connector.connect(
 
 cursor = mydb.cursor()
 
-sql_depositor ="CREATE TABLE Depositor_Table (Customer_Name CHAR(20) NOT NULL,Account_number CHAR(20) NOT NULL)"
+#sql_item ="CREATE TABLE Item_Table (item_id CHAR(20) NOT NULL,item_name CHAR(20) NOT NULL,Manu_name CHAR(20) NOT NULL,item_rate CHAR(20) NOT NULL,Sell_price CHAR(20) NOT NULL,item_description CHAR(20) NOT NULL)"
 
-cursor.execute(sql_depositor)
+sql_item ="CREATE TABLE Item_Table ("
 
-insert_sql = "INSERT INTO Depositor_Table (Customer_Name, Account_Number) VALUES (%s, %s)"
+for i in range(len(keys)):
+	header = keys[i]
+	repeat = str(header) + " CHAR(20) NOT NULL,"
+	if i == (len(keys)-1):
+		repeat = repeat = str(header) + " CHAR(20) NOT NULL)"
+	sql_item += repeat
 
-for i in range(len(df)):
-	val = tuple(df.iloc[i].values)
+#print sql_item	
+
+cursor.execute(sql_item)
+
+#insert_sql = "INSERT INTO Depositor_Table (Customer_Name, Account_Number) VALUES (%s, %s)"
+
+#insert_sql = "INSERT INTO Item_Table (item_id,item_name,Manu_name,item_rate,Sell_price,item_description) VALUES (%s, %s, %s, %s, %s, %s)"
+
+insert_sql_header = "INSERT INTO Item_Table ("
+
+sql_item = ""
+
+for i in range(len(keys)):
+	header = keys[i]
+	repeat = str(header) + ","
+	if i == (len(keys)-1):
+		repeat = repeat = str(header)
+	sql_item += repeat
+
+sql_header = ") VALUES ("
+sql_repeat = ""
+
+if len(keys)==1:
+	sql_repeat = "%s)"
+
+else:
+	for i in range(len(keys)-1):
+		sql_repeat+="%s, "
+	 
+ 	sql_repeat += "%s)"
+
+insert_sql = insert_sql_header + sql_item + sql_header + sql_repeat 
+
+print insert_sql
+
+
+
+for i in range(len(keys)):
+	val = data[i]
 	cursor.execute(insert_sql, val)
 
 #Deleting table for testing purporses
 
-cursor.execute("DROP TABLE Depositor_Table;")
+#cursor.execute("DROP TABLE Item_Table;")
 		
 mydb.commit()
 
@@ -56,6 +97,5 @@ print(cursor.rowcount, "record inserted.")
 
 	
  
-
 
 
