@@ -4,7 +4,7 @@ import mysql.connector
 
 
 document = Document('table.docx')
-table = document.tables[1]
+table = document.tables[0]
 
 data = []
 
@@ -35,7 +35,15 @@ cursor = mydb.cursor()
 
 #sql_item ="CREATE TABLE Item_Table (item_id CHAR(20) NOT NULL,item_name CHAR(20) NOT NULL,Manu_name CHAR(20) NOT NULL,item_rate CHAR(20) NOT NULL,Sell_price CHAR(20) NOT NULL,item_description CHAR(20) NOT NULL)"
 
+
+sql = "DROP TABLE IF EXISTS Item_Table"
+
+cursor.execute(sql) 
+
+
 sql_item ="CREATE TABLE Item_Table ("
+
+
 
 for i in range(len(keys)):
 	header = keys[i]
