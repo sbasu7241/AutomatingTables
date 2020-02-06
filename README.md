@@ -37,7 +37,8 @@ mysql -u francesco -p -h localhost
 python fill.py
 ```
 
-Open up the 'assignment' database in MySQL and viola the tables are there :)
+
+#### Open up the 'assignment' database in MySQL and viola the tables are there :)
 
 
 
