@@ -17,7 +17,7 @@ mysql -u root -p -h localhost
 ```
 Create a new user with
 ```
-CREATE USER 'francesco'@'localhost' IDENTIFIED BY 'some_pass';
+CREATE USER 'frosty'@'localhost' IDENTIFIED BY 'some_pass';
 ```
 Create database
 ```
@@ -25,12 +25,12 @@ CREATE DATABASE assignment;
 ```
 Grant privileges for new user for this database
 ```
-GRANT ALL PRIVILEGES ON shop.* TO 'francesco'@'localhost';
+GRANT ALL PRIVILEGES ON shop.* TO 'frosty'@'localhost';
 ```
 Log out root and log in as the new user
 ```
 quit;
-mysql -u francesco -p -h localhost
+mysql -u frosty -p -h localhost
 ```
 ## Run python file
 ```
@@ -38,7 +38,7 @@ python fill.py
 ```
 
 
-#### Open up the 'assignment' database in MySQL and viola the tables are there :)
+#### Open up the 'assignment' database as user 'frosty' in MySQL and viola the tables are there :)
 
 
 
