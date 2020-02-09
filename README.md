@@ -27,7 +27,7 @@ Grant privileges for new user for this database
 ```
 GRANT ALL PRIVILEGES ON shop.* TO 'frosty'@'localhost';
 ```
-Log out root and log in as the new user
+Log out root and log in as the new user with password 'some_pass'
 ```
 quit;
 mysql -u frosty -p -h localhost
